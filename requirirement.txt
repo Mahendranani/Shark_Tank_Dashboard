@@ -1,0 +1,380 @@
+streamlit
+pandas
+matplotlib
+seaborn
+plotly
+
+
+# import streamlit as st
+# import pandas as pd
+# import plotly.express as px
+
+# # -------------------- PAGE CONFIG --------------------
+# st.set_page_config(
+#     page_title="Shark Tank India Dashboard",
+#     page_icon="🦈",
+#     layout="wide",
+#     initial_sidebar_state="expanded"
+# )
+
+# st.markdown("""
+#     <style>
+#     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+#     * { font-family: 'Poppins', sans-serif; }
+#     .reportview-container { background: linear-gradient(135deg, #E1F5FE 0%, #FFFFFF 100%); }
+#     .stApp > header {
+#         background-color: #0288D1; padding: 1rem;
+#         border-radius: 0 0 0.8rem 0.8rem; color: white;
+#     }
+#     .metric-card {
+#         background: #E3F2FD;
+#         border-radius: 1rem;
+#         padding: 1.5rem;
+#         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+#         transition: transform 0.2s ease-in-out;
+#     }
+#     .metric-card:hover { transform: scale(1.05); }
+#     .css-1d391kg { background-color: #F1F8E9; }
+#     .stDataFrame { box-shadow: 0 2px 6px rgba(0,0,0,0.1); border-radius: 0.5rem; }
+#     </style>
+# """, unsafe_allow_html=True)
+# # -------------------- LOAD DATA --------------------
+# df = pd.read_csv("data/shark_tank_clean.csv")
+
+# # -------------------- FIX COLUMN NAMES --------------------
+# # Try to detect deal column
+# deal_col = None
+# for col in df.columns:
+#     if "deal" in col.lower():
+#         deal_col = col
+#         break
+
+# # Try to detect investment column
+# investment_col = None
+# for col in df.columns:
+#     if "amount" in col.lower() or "investment" in col.lower():
+#         investment_col = col
+#         break
+
+# # Deals Closed
+# if deal_col:
+#     deals_closed = df[df[deal_col].astype(str).str.lower() == "yes"].shape[0]
+# else:
+#     deals_closed = "N/A"
+
+# # Total Investment
+# if investment_col:
+#     df[investment_col] = pd.to_numeric(df[investment_col], errors="coerce").fillna(0)
+#     total_investment = df[investment_col].sum()
+#     total_in_crores = round(total_investment / 1e7, 2)
+# else:
+#     total_in_crores = 0
+
+# # -------------------- SIDEBAR --------------------
+# st.sidebar.image("assets/logo.png", use_container_width=True)
+# st.sidebar.title("🧭 Navigation")
+
+# page = st.sidebar.radio("Go to", ["Overview", "Industry Insights", "Shark Profiles", "Deal Analysis"])
+
+# # -------------------- HEADER --------------------
+# st.markdown(
+#     """
+#     <style>
+#     .main-title {
+#         font-size: 42px !important;
+#         color: #00B4D8;
+#         font-weight: 800;
+#         text-align: center;
+#         margin-bottom: 20px;
+#     }
+#     .metric-card {
+#         background: linear-gradient(135deg, #CAF0F8, #ADE8F4);
+#         padding: 25px;
+#         border-radius: 15px;
+#         text-align: center;
+#         box-shadow: 2px 2px 15px rgba(0,0,0,0.1);
+#     }
+#     </style>
+#     """,
+#     unsafe_allow_html=True,
+# )
+
+# st.markdown("<h1 class='main-title'>🦈 Shark Tank India Dashboard</h1>", unsafe_allow_html=True)
+
+# # -------------------- PAGES --------------------
+# # 1. Overview
+# if page == "Overview":
+#     st.subheader("📌 Pitch Overview")
+
+#     # KPIs
+#     col1, col2, col3 = st.columns(3)
+#     with col1:
+#         st.markdown(f"<div class='metric-card'><h3>📊 Total Pitches</h3><h2>{df.shape[0]}</h2></div>", unsafe_allow_html=True)
+#     with col2:
+#         st.markdown(f"<div class='metric-card'><h3>🤝 Deals Closed</h3><h2>{deals_closed}</h2></div>", unsafe_allow_html=True)
+#     with col3:
+#         st.markdown(f"<div class='metric-card'><h3>💰 Total Investment</h3><h2>₹ {total_in_crores} Cr</h2></div>", unsafe_allow_html=True)
+
+#     st.markdown("---")
+#     st.write("### Sample Data")
+#     st.dataframe(df.head())
+
+# # 2. Industry Insights
+# elif page == "Industry Insights":
+#     st.subheader("🏭 Industry Insights")
+
+#     if "industry" in df.columns:
+#         industry_count = df["industry"].value_counts().reset_index()
+#         industry_count.columns = ["Industry", "Count"]
+
+#         fig = px.bar(industry_count.head(10), x="Industry", y="Count", color="Industry", title="Top 10 Industries by Pitches")
+#         st.plotly_chart(fig, use_container_width=True)
+
+# # 3. Shark Profiles
+# elif page == "Shark Profiles":
+#     st.subheader("🦸 Meet the Sharks")
+
+#     sharks = [
+#         ("aman.png", "Aman Gupta - boAt"),
+#         ("namita.png", "Namita Thapar - Emcure"),
+#         ("peyush.png", "Peyush Bansal - Lenskart"),
+#         ("anupam.png", "Anupam Mittal - Shaadi.com"),
+#         ("vineeta.png", "Vineeta Singh - Sugar Cosmetics"),
+#         ("amit.png", "Amit Jain - CarDekho"),
+#         ("ritesh.png", "Ritesh Agarwal - OYO"),
+#     ]
+
+#     cols = st.columns(3)
+#     for i, (img, name) in enumerate(sharks):
+#         with cols[i % 3]:
+#             st.image(f"images/{img}", caption=name, use_container_width=True)
+
+# # 4. Deal Analysis
+# elif page == "Deal Analysis":
+#     st.subheader("📈 Deal Analysis")
+
+#     if investment_col:
+#         avg_in_crores = df[investment_col].mean() / 1e7
+#         total_in_crores = df[investment_col].sum() / 1e7
+
+#         col1, col2 = st.columns(2)
+#         with col1:
+#             st.markdown(f"<div class='metric-card'><h3>💸 Average Investment</h3><h2>₹ {round(avg_in_crores, 2)} Cr</h2></div>", unsafe_allow_html=True)
+#         with col2:
+#             st.markdown(f"<div class='metric-card'><h3>🏦 Total Investment</h3><h2>₹ {round(total_in_crores, 2)} Cr</h2></div>", unsafe_allow_html=True)
+
+#         st.markdown("---")
+
+#         # Investment by Industry
+#         if "industry" in df.columns:
+#             industry_investment = df.groupby("industry")[investment_col].sum().reset_index()
+#             industry_investment[investment_col] = industry_investment[investment_col] / 1e7
+
+#             fig = px.pie(industry_investment.sort_values(by=investment_col, ascending=False).head(8),
+#                          values=investment_col, names="industry",
+#                          title="Top Industries by Investment (₹ Cr)")
+#             st.plotly_chart(fig, use_container_width=True)
+
+#         # Investment by Shark
+#         shark_columns = [col for col in df.columns if "Investment Amount" in col and "Guest" not in col]
+#         if shark_columns:
+#             shark_investments = df[shark_columns].sum().reset_index()
+#             shark_investments.columns = ["Shark", "Amount"]
+#             shark_investments["Shark"] = shark_investments["Shark"].str.replace(" Investment Amount", "")
+#             shark_investments["Amount"] = shark_investments["Amount"] / 1e7
+
+#             fig2 = px.bar(shark_investments, x="Shark", y="Amount", color="Shark",
+#                           title="Total Investment by Each Shark (₹ Cr)")
+#             st.plotly_chart(fig2, use_container_width=True)
+
+# # import streamlit as st
+# # import pandas as pd
+# # import plotly.express as px
+
+# # # ---------------------- PAGE CONFIG ----------------------
+# # st.set_page_config(
+# #     page_title="Shark Tank India Dashboard",
+# #     page_icon="🦈",
+# #     layout="wide",
+# #     initial_sidebar_state="expanded",
+# #     menu_items={
+# #         'Get Help': None,
+# #         'About': "Built by Mahendra • Data Analytics Portfolio"
+# #     }
+# # )
+
+# # # ---------------------- THEME & STYLES ----------------------
+# # st.markdown("""
+# #     <style>
+# #     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+# #     * { font-family: 'Poppins', sans-serif; }
+# #     .reportview-container { background: linear-gradient(135deg, #E1F5FE 0%, #FFFFFF 100%); }
+# #     .stApp > header {
+# #         background-color: #0288D1; padding: 1rem;
+# #         border-radius: 0 0 0.8rem 0.8rem; color: white;
+# #     }
+# #     .metric-card {
+# #         background: #E3F2FD;
+# #         border-radius: 1rem;
+# #         padding: 1.5rem;
+# #         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+# #         transition: transform 0.2s ease-in-out;
+# #     }
+# #     .metric-card:hover { transform: scale(1.05); }
+# #     .css-1d391kg { background-color: #F1F8E9; }
+# #     .stDataFrame { box-shadow: 0 2px 6px rgba(0,0,0,0.1); border-radius: 0.5rem; }
+# #     </style>
+# # """, unsafe_allow_html=True)
+
+# # # ---------------------- LOAD DATA ----------------------
+# # @st.cache_data
+# # def load_data():
+# #     df = pd.read_csv("data/shark_tank_clean.csv")
+# #     df["total_deal_amount"] = pd.to_numeric(df["total_deal_amount"], errors="coerce").fillna(0)
+# #     return df
+
+# # df = load_data()
+
+# # # ---------------------- SIDEBAR ----------------------
+# # st.sidebar.image("assets/logo.png", use_column_width=True)
+# # st.sidebar.markdown("#### Navigation")
+# # page = st.sidebar.radio("", ["Overview", "Industry Insights", "Shark Profiles", "Deal Analysis"])
+
+# # # ---------------------- Overview ----------------------
+# # if page == "Overview":
+# #     st.header("🦈 Shark Tank India Dashboard")
+# #     st.subheader("📊 Pitch Overview")
+
+# #     total_pitches = df.shape[0]
+# #     deals_closed = df[df["accepted_offer"].astype(str).str.lower() == "yes"].shape[0]
+# #     total_investment = df["total_deal_amount"].sum() / 1e7  # in crores
+
+# #     cols = st.columns(3, gap="large")
+# #     with cols[0]:
+# #         st.markdown('<div class="metric-card text-center">', unsafe_allow_html=True)
+# #         st.metric("Total Pitches", f"{total_pitches:,}")
+# #         st.markdown('</div>', unsafe_allow_html=True)
+# #     with cols[1]:
+# #         st.markdown('<div class="metric-card text-center">', unsafe_allow_html=True)
+# #         st.metric("Deals Closed", f"{deals_closed}")
+# #         st.markdown('</div>', unsafe_allow_html=True)
+# #     with cols[2]:
+# #         st.markdown('<div class="metric-card text-center">', unsafe_allow_html=True)
+# #         st.metric("Total Investment (₹ Cr)", f"{total_investment:.2f}")
+# #         st.markdown('</div>', unsafe_allow_html=True)
+
+# #     st.markdown("----")
+# #     st.subheader("Sample Data")
+# #     st.dataframe(df.head())
+
+# # # ---------------------- Industry Insights ----------------------
+# # elif page == "Industry Insights":
+# #     st.header("🌐 Industry Insights")
+
+# #     industry_counts = (
+# #         df["industry"].value_counts()
+# #         .reset_index()
+# #         .rename(columns={"index": "industry", "industry": "count"})
+# #     )
+
+# #     fig = px.bar(
+# #         industry_counts,
+# #         x="industry",
+# #         y="count",
+# #         color="count",
+# #         title="Pitches by Industry",
+# #         template="plotly_white"
+# #     )
+# #     st.plotly_chart(fig, use_container_width=True)
+
+# #     st.markdown("### Top 5 Industries by Investment")
+# #     invest_by_industry = (
+# #         df.groupby("industry")["total_deal_amount"]
+# #         .sum()
+# #         .sort_values(ascending=False)
+# #         .head(5)
+# #         .reset_index()
+# #         .rename(columns={"industry": "industry", "total_deal_amount": "investment"})
+# #     )
+# #     fig2 = px.pie(
+# #         invest_by_industry,
+# #         names="industry",
+# #         values="investment",
+# #         title="Investment Distribution",
+# #         template="plotly_white"
+# #     )
+# #     st.plotly_chart(fig2, use_container_width=True)
+
+# # # ---------------------- Shark Profiles ----------------------
+# # elif page == "Shark Profiles":
+# #     st.header("🦈 Shark Profiles")
+# #     sharks = ["Namita", "Vineeta", "Anupam", "Aman", "Peyush", "Ritesh", "Amit"]
+# #     selected_shark = st.selectbox("Select a Shark", sharks)
+
+# #     shark_cols = [col for col in df.columns if selected_shark.lower() in col.lower() and "investment_amount" in col]
+# #     if shark_cols:
+# #         amt_col = shark_cols[0]
+# #         equity_col = amt_col.replace("investment_amount", "investment_equity")
+# #         total_deals = df[df[amt_col] > 0].shape[0]
+# #         total_amount = df[amt_col].sum()
+# #         avg_equity = df[equity_col].mean()
+
+# #         st.markdown(f"#### {selected_shark} Overview")
+# #         c1, c2, c3 = st.columns(3)
+# #         c1.metric("Deals Invested", total_deals)
+# #         c2.metric("Total Invested (₹)", f"{total_amount:,.0f}")
+# #         c3.metric("Avg Equity (%)", f"{avg_equity:.2f}%")
+
+# #         st.markdown("##### Investment per Industry")
+# #         invest_ind = (
+# #             df.groupby("industry")[amt_col]
+# #             .sum()
+# #             .reset_index()
+# #             .sort_values(by=amt_col, ascending=False)
+# #         )
+# #         fig3 = px.bar(
+# #             invest_ind,
+# #             x="industry",
+# #             y=amt_col,
+# #             title=f"{selected_shark}'s Investments by Industry",
+# #             template="plotly_white"
+# #         )
+# #         st.plotly_chart(fig3, use_container_width=True)
+# #     else:
+# #         st.warning("No investment data available for this shark.")
+
+# # # ---------------------- Deal Analysis ----------------------
+# # elif page == "Deal Analysis":
+# #     st.header("🔍 Deal Analysis")
+
+# #     st.markdown("##### Filter by Season")
+# #     seasons = sorted(df["season_number"].unique())
+# #     sel_season = st.selectbox("Season", seasons)
+
+# #     season_df = df[df["season_number"] == sel_season]
+# #     st.markdown(f"###### Season {sel_season} Summary")
+# #     c1, c2 = st.columns(2)
+# #     c1.metric("Pitches", season_df.shape[0])
+# #     c2.metric("Deals Closed", season_df[season_df["accepted_offer"].astype(str).str.lower() == "yes"].shape[0])
+
+# #     st.markdown("##### Top 10 Startups by Investment Amount")
+# #     top10 = season_df.nlargest(10, "total_deal_amount")[["startup_name", "total_deal_amount"]]
+# #     fig4 = px.bar(
+# #         top10,
+# #         x="total_deal_amount",
+# #         y="startup_name",
+# #         orientation="h",
+# #         title="Top 10 Investments",
+# #         template="plotly_white"
+# #     )
+# #     st.plotly_chart(fig4, use_container_width=True)
+
+# #     st.markdown("##### Deal Amount Distribution")
+# #     fig5 = px.histogram(
+# #         season_df,
+# #         x="total_deal_amount",
+# #         nbins=20,
+# #         title="Deal Size Distribution",
+# #         template="plotly_white"
+# #     )
+# #     st.plotly_chart(fig5, use_container_width=True)
